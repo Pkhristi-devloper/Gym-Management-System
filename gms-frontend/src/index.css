@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+.registration::-webkit-scrollbar{
+  width: 4px;
+}
+
+.registration::-webkit-scrollbar-thumb{
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
+}
+
+.registration::-webkit-scrollbar-track{
+  background-color: rgba(0, 0, 0, 0.1);
+}
