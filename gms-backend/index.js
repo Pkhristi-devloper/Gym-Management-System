@@ -10,7 +10,7 @@ import memberRouter from "./Routes/member.routes.js";
 let app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://gym-management-system-frontend-js4m.onrender.com",
     credentials: true,
   })
 );
