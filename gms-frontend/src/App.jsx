@@ -7,6 +7,7 @@ import Members from "./pages/Members";
 import GeneralUser from "./components/GeneralUser";
 import MemberDetails from "./components/MemberDetails";
 import "react-toastify/ReactToastify.css"
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   let navigate = useNavigate();
@@ -15,7 +16,7 @@ const App = () => {
     let isLoggedIn = localStorage.getItem("isLogin");
     if (isLoggedIn) {
       setIsLogin(true);
-      navigate("/dashboard")
+      // navigate("/dashboard")
     } else {
       setIsLogin(false);
       navigate("/");
@@ -24,6 +25,7 @@ const App = () => {
   return (
     <div className="w-screen h-screen overflow-x-hidden overflow-y-auto flex">
       {isLogin && <Sidebar />}
+      <ToastContainer position="top-center" autoClose={3000} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />

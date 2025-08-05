@@ -2,9 +2,17 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MemberCard from "./MemberCard";
+import {
+  getExpiredData,
+  getExpireIn3DaysData,
+  getExpireIn4To7DaysData,
+  getInactiveData,
+  getMonthalyjoined,
+} from "./GeneralData";
 
 const GeneralUser = () => {
   const [heading, setheading] = useState(null);
+  const [data, setData] = useState([]);
   useEffect(() => {
     let item = sessionStorage.getItem("func");
     functionCall(item);
@@ -12,14 +20,24 @@ const GeneralUser = () => {
   let functionCall = async (item) => {
     if (item === "Monthly") {
       setheading("Monthly joined members ");
+      let datas = await getMonthalyjoined();
+      setData(datas.members);
     } else if (item === "ExpireIn3Days") {
       setheading("Expiring in 3 Days Members");
+      let datas = await getExpireIn3DaysData();
+      setData(datas.members);
     } else if (item == "ExpireIn4To7Days") {
       setheading("Expiring in 4 to 7 Days Members");
+      let datas = await getExpireIn4To7DaysData();
+      setData(datas.members);
     } else if (item == "Expired") {
       setheading("Expired Members");
+      let datas = await getExpiredData();
+      setData(datas.members);
     } else if (item == "Inactive") {
       setheading("Inactive members");
+      let datas = await getInactiveData();
+      setData(datas.members);
     }
   };
   return (
@@ -37,8 +55,10 @@ const GeneralUser = () => {
         {heading}
       </div>
       <div className="p-5 mt-[5px] grid grid-cols-3 gap-[20px] bg-gray-100 rounded-lg h-[75%] overflow-y-auto">
-        <MemberCard />
-        <MemberCard />
+        {data &&
+          data.map((item, idx) => {
+            return <MemberCard key={idx} item={item} />;
+          })}
       </div>
     </div>
   );

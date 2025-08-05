@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { serverURL } from "../main";
 import { toast, ToastContainer } from "react-toastify";
@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [loginField, setLoginField] = useState({ userName: "", password: "" });
+  useEffect(()=>{
+    localStorage.clear()
+  },[])
   let navigate = useNavigate();
   let handleLogin = async () => {
     try {

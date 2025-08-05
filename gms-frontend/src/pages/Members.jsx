@@ -11,9 +11,13 @@ import { useEffect, useState } from "react";
 import Popup from "../components/Popup";
 import MembershipPopup from "../components/MembershipPopup";
 import AddMemberPopup from "../components/AddMemberPopup";
+import axios from "axios";
+import { serverURL } from "../main";
+import { toast } from "react-toastify";
 
 const Members = () => {
   const [showMembership, setShowMembership] = useState(false);
+  const [skips, setSkips] = useState(0);
   const [addMember, setAddMember] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [startFrom, setStartFrom] = useState(0);
@@ -21,10 +25,23 @@ const Members = () => {
   const [totalData, setTotalData] = useState(0);
   const [limit, setLimit] = useState(9);
   const [noOfPages, setNoOfPages] = useState(0);
-
-  let getData = async () => {
+  const [memberData, setMemberData] = useState([]);
+  const [searchData, setSearchData] = useState("");
+  const [searchShow, setSearchShow] = useState(false);
+  useEffect(() => {
+    getData(0, 9);
+  }, []);
+  let getData = async (skip, limits) => {
     try {
-      let data = 52;
+      let members = await axios.get(
+        serverURL + `/api/members/all-members?skip=${skip}&limit=${limits}`,
+        {
+          withCredentials: true,
+        }
+      );
+      // console.log(members);
+      setMemberData(members.data.members);
+      let data = members.data.totalMembers;
       setTotalData(data);
       let pages = Math.ceil(data / limit);
       setNoOfPages(pages);
@@ -40,37 +57,62 @@ const Members = () => {
       console.log(error);
     }
   };
-  useEffect(() => {
-    getData();
-  }, []);
   const handlePrev = () => {
     if (currentPage !== 1) {
       let currPage = currentPage - 1;
+      let skipValue = (currPage - 1) * limit;
+      let from = skipValue;
+      let to = skipValue + limit;
+
       setCurrentPage(currPage);
-      let from = (currPage - 1) * 9;
-      let to = currPage * 9;
+      setSkips(skipValue);
+      getData(skipValue, limit);
       setStartFrom(from);
-      setEndTo(to);
+      setEndTo(Math.min(to, totalData));
     }
   };
-  let handleNext = () => {
+
+  const handleNext = () => {
     if (currentPage !== noOfPages) {
       let currPage = currentPage + 1;
+      let skipValue = (currPage - 1) * limit;
+      let from = skipValue;
+      let to = skipValue + limit;
+
       setCurrentPage(currPage);
-      let from = (currPage - 1) * 9;
-      let to = currPage * 9;
-      if (to >= totalData) {
-        to = totalData;
-      }
+      setSkips(skipValue);
+      getData(skipValue, limit);
       setStartFrom(from);
-      setEndTo(to);
+      setEndTo(Math.min(to, totalData));
     }
   };
+
   let handleAddMember = () => {
     setAddMember((prev) => !prev);
   };
   let handlePopup = () => {
     setShowMembership((prev) => !prev);
+  };
+  let handleSearch = async () => {
+    if (searchData.trim() !== "") {
+      setSearchShow(true);
+      try {
+        let result = await axios.get(
+          serverURL + `/api/members/searched-members?searchItem=${searchData}`,
+          { withCredentials: true }
+        );
+        setMemberData(result.data.members);
+        setTotalData(result.data.totalMembers);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      if (searchShow) {
+        window.location.reload();
+      } else {
+        toast.error("Please enter some value..!!");
+      }
+    }
   };
   return (
     <div className="w-[75vw] p-5 h-full">
@@ -96,6 +138,11 @@ const Members = () => {
           className="w-full h-full outline-none border-2 border-gray-400 px-[20px] py-[10px] font-medium text-lg rounded-lg"
           type="text"
           placeholder="Search by Name or Mobile No."
+          value={searchData}
+          onChange={(e) => {
+            setSearchData(e.target.value);
+            handleSearch();
+          }}
         />
         <SearchIcon
           sx={{
@@ -108,6 +155,7 @@ const Members = () => {
             borderRadius: "7px",
             cursor: "pointer",
           }}
+          // onClick={()=>handleSearch()}
         />
       </div>
       <div className="flex w-full justify-between mt-[10px] ">
@@ -155,16 +203,16 @@ const Members = () => {
         </div>
       </div>
       <div className="p-5 mt-[10px] grid grid-cols-3 gap-[20px] bg-gray-100 rounded-lg h-[65%] overflow-y-auto">
-        <MemberCard />
-        <MemberCard />
-        <MemberCard />
-        <MemberCard />
+        {memberData &&
+          memberData.map((item, idx) => {
+            return <MemberCard key={idx} item={item} />;
+          })}
       </div>
       {showMembership && (
         <Popup
           handleClose={handlePopup}
           header={"Membership"}
-          content={<MembershipPopup />}
+          content={<MembershipPopup handleClose={handlePopup} />}
         />
       )}
       {addMember && (

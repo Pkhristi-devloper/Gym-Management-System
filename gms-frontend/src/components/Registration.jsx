@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Popup from "./Popup";
 import ForgotPassword from "./ForgotPassword";
 import axios from "axios";
@@ -8,6 +8,9 @@ import { ToastContainer, toast } from "react-toastify";
 import { serverURL } from "../main";
 // gym-management
 const Registration = () => {
+  useEffect(()=>{
+      localStorage.clear()
+    },[])
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [inputField, setInputField] = useState({
